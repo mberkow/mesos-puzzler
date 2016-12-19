@@ -1,0 +1,23 @@
+{
+  "id": "{{ app_name }}",
+  "cpus": {{cpu_count }},
+  "mem": {{ mem_count }},
+  "instances": {{ instance_count }},
+  "cmd": "/bin/sh -c \"while true; do echo hello world; sleep 60; done\"",
+  "constraints": [
+    [
+      "az",
+      "GROUP_BY",
+      "{{ az_count }}"
+    ]
+  ],
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "ubuntu",
+      "privileged": false,
+      "parameters": []
+    },
+    "volumes": []
+  }
+}

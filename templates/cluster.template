@@ -1,0 +1,71 @@
+minimesos {
+    clusterName = "{{ config_name }}"
+    loggingLevel = "INFO"
+    mapAgentSandboxVolume = false
+    mapPortsToHost = false
+    mesosVersion = "0.28.0"
+    timeout = 60
+    {% for n in range(agent_count) %}
+    {% set az = n %  az_count %}
+    agent {
+        imageName = "containersol/mesos-agent"
+        imageTag = "{{ agent_version_tag }}"
+        loggingLevel = "# INHERIT FROM CLUSTER"
+        portNumber = 5051
+        attributes = "az:{{ az }}a"
+
+        resources {
+
+            cpu {
+                role = "*"
+                value = {{ cpu_count }}
+            }
+
+            disk {
+                role = "*"
+                value = 200
+            }
+
+            mem {
+                role = "*"
+                value = {{ mem_count }}
+            }
+
+            ports {
+                role = "*"
+                value = "[31000-32000]"
+            }
+        }
+    }
+    {% endfor %}
+    consul {
+        imageName = "containersol/consul-server"
+        imageTag = "0.6-1"
+    }
+
+    marathon {
+        imageName = "mesosphere/marathon"
+        imageTag = "v0.15.3"
+        // Add 'app { marathonJson = "<path or URL to JSON file>" }' for every task you want to execute
+        app {
+            marathonJson = "https://raw.githubusercontent.com/ContainerSolutions/minimesos/e2a43362f4581122762c80d8780d09b567783f1a/apps/weave-scope.json"
+        }
+    }
+
+    master {
+        aclJson = null
+        authenticate = false
+        imageName = "containersol/mesos-master"
+        imageTag = "1.0.0-0.1.0"
+        loggingLevel = "# INHERIT FROM CLUSTER"
+    }
+
+    registrator {
+        imageName = "gliderlabs/registrator"
+        imageTag = "v6"
+    }
+    zookeeper {
+        imageName = "jplock/zookeeper"
+        imageTag = "3.4.6"
+    }
+}
